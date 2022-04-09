@@ -1,0 +1,14 @@
+project(HALRGBLed VERSION 1.0 DESCRIPTION "HAL RGB Led Library")
+add_library(HALRGBLed SHARED hal_rgb_led.cpp)
+
+set_target_properties(HALRGBLed PROPERTIES
+    VERSION ${PROJECT_VERSION}
+    SOVERSION 1
+    PUBLIC_HEADER hal_rgb_led.h)
+
+target_include_directories(HALRGBLed PRIVATE ${CMAKE_SOURCE_DIR}/hal/include)
+
+install(TARGETS HALRGBLed
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    PUBLIC_HEADER DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+
