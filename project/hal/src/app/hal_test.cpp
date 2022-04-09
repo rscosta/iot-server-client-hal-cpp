@@ -15,6 +15,7 @@ using namespace std;
 
 #define HAL_CAMERA_LIBRARY_FILE "libHALCamera.so"
 #define HAL_GPS_LIBRARY_FILE "libHALGPS.so"
+#define BMP_IMAGE_FILE "img_buffer.bmp"
 
 /**
  * Tests HAL Camera API and saves a capture image to a file.
@@ -51,9 +52,11 @@ void HAL_testCameraAPI()
   string imgBuffer = camera->getImage();
 
   // Saves captured image into a file
-  FILE *file = fopen("img_buffer.bmp", "wb");
+  FILE *file = fopen(BMP_IMAGE_FILE, "wb");
   fwrite(imgBuffer.c_str(), sizeof(unsigned char*), imgBuffer.length(), file);
   fclose(file);
+
+  cout << "BMP File file (" << BMP_IMAGE_FILE << ") saved in disk." << endl; 
 
   // Stops/Closes driver
   result = camera->stop();
