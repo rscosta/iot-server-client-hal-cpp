@@ -1,8 +1,8 @@
-/*! \file json.cpp
- * \brief Simpleson source file
+/*! \file custom_json.cpp
+ * \brief Simpleson source file (https://github.com/gregjesl/simpleson)
  */
 
-#include "json.h"
+#include "custom_json.h"
 #include <string.h>
 
 /*! \brief Checks for an empty string

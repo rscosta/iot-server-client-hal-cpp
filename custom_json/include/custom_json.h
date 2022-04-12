@@ -1,8 +1,8 @@
 #ifndef JSON_H
 #define JSON_H
 
-/*! \file json.h
- * \brief Simpleson header file
+/*! \file custom_json.h
+ * \brief Simpleson header file (https://github.com/gregjesl/simpleson)
  */
 
 #include <cstdlib>
