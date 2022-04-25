@@ -2,18 +2,22 @@
 #define _SERVER_THREAD_H_
 
 #include <pthread.h>
-#include "process_server.h"
+#include <thread>
+#include <chrono>
+#include "process_client.h"
 #include "iot_server.h"
 
 class ServerThread
 {
 public:
-	pthread_t threadID;
-	ProcessServer *processor;
+	pthread_t threadID1;
+	pthread_t threadID2;
+	ProcessClient *processor;
 	IOTServer serverProcessingAcceptedConnection;
 	void createServerThread();
 	static void *functionThread(void *arg);
-	ServerThread(ProcessServer * _processor_, IOTServer& _servserverProcessingAcceptedConnection_);
+	static void *functionThread2(void *arg);
+	ServerThread(ProcessClient * _processor_, IOTServer& _servserverProcessingAcceptedConnection_);
 };
 
 #endif /*_SERVER_THREAD_H_ */

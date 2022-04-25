@@ -13,9 +13,8 @@ int getLocalAddress(std::string& myIP)
     if((socketToAcessGoogleDNSServer = socket(AF_INET, SOCK_DGRAM, 0)) < 0)
     {
         returnValue = errno;
-        std::cout << "socket to acess Google DNS Server [create][ERROR]["<<strerror(errno)<<"]\n";
+        std::cout << "socket to acess Google DNS Server [create][ERROR]["<<strerror(errno)<<"]" << std::endl;
         return returnValue;
-        
     }
 
     memset(&googleDNServerAddress, 0, sizeof(googleDNServerAddress));
@@ -27,7 +26,7 @@ int getLocalAddress(std::string& myIP)
     sizeof(googleDNServerAddress)) < 0)
     {
         returnValue = errno;
-        std::cout << "connect to Google DNS Server[ERROR]["<<strerror(errno)<<"]\n";
+        std::cout << "connect to Google DNS Server[ERROR]["<<strerror(errno)<<"]" << std::endl;
         close(socketToAcessGoogleDNSServer);
         return returnValue;
   
@@ -40,7 +39,7 @@ int getLocalAddress(std::string& myIP)
     &localHostIPNameLength) < 0)
     {
         returnValue = errno;
-        std::cout << "unable to get local IP through getsockname[ERROR]["<<strerror(errno)<<"]\n";
+        std::cout << "unable to get local IP through getsockname[ERROR]["<<strerror(errno)<<"]" << std::endl;
         close(socketToAcessGoogleDNSServer);
         return returnValue;
     }      
@@ -51,15 +50,12 @@ int getLocalAddress(std::string& myIP)
     {
         returnValue = errno;
         std::cout << "unable to convert IP from binary to text dotted-decimal format[ERROR]["
-        <<strerror(errno)<<"]\n";
+        <<strerror(errno)<<"]" << std::endl;
         close(socketToAcessGoogleDNSServer);
         return returnValue;      
     }
 
     //inet_ntop
-
-    
-  
     myIP = bufferIPv4;  
        
     close(socketToAcessGoogleDNSServer);

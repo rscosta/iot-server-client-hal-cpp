@@ -6,16 +6,26 @@ void ProcessClient::process(IOTServer _serverProcessingAcceptedConnection_)
 
 	while(flag)
 	{
-		if(_serverProcessingAcceptedConnection_.readIncomingMessageFromClient() >= 0)
+		int processRes = -1;
+		std::string srvMsg;
+
+	    std::tie(processRes, srvMsg) = _serverProcessingAcceptedConnection_.readIncomingMessageFromClient();
+
+		if(processRes >= 0)
 		{
-			_serverProcessingAcceptedConnection_.sendResponseToClient("sucess", 200);
-			usleep(6000000);
+			_serverProcessingAcceptedConnection_.sendResponseToClient(srvMsg, 200);
 		} 
 		else 
 		{
-			_serverProcessingAcceptedConnection_.sendResponseToClient("fail", 400);		
+			_serverProcessingAcceptedConnection_.sendResponseToClient(srvMsg, 400);		
+			flag = false;
+		}
+
+		if(!_serverProcessingAcceptedConnection_.isClientConnectionAlive())
+		{
 			flag = false;
 			
+			std::cout << "Socket is not available. Closing process() listening thread." << std::endl;
 		}
 	}
 }

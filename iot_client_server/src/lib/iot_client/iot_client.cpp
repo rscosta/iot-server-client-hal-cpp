@@ -2,21 +2,21 @@
 
 IOTClient::IOTClient(char *_serverIP_, unsigned short _serverPort_)
 {
-	std::cout<<"Client initializing ...\n";
+	std::cout<<"Client initializing ..." << std::endl;
 
 	serverPortNumber() = _serverPort_;
 	this->createClientForConnection();
 
 	serverIP_ = gethostbyname(_serverIP_);
+
 	if (serverIP_ == NULL)
 	{
 		std::cout<<"Error host not found"
-					<<strerror(h_errno)<<"\n";
-
+					<<strerror(h_errno)<<"" << std::endl;
 	}
 	else
 	{
-		std::cout<<"Client initialized\n";
+		std::cout<<"Client initialized" << std::endl;
 	}
 
 	this->connectClientToServer();
@@ -26,27 +26,28 @@ int IOTClient::createClientForConnection()
 {
 	int returnValue = 0;
 
-	std::cout << "Creating a client socket ...\n";
+	std::cout << "Creating a client socket ..." << std::endl;
 
 	socketConnectToClient_ = socket(AF_INET, SOCK_STREAM, 0);
+	
 	if (socketConnectToClient_ < 0)
 	{
-		returnValue = -200000; 
+		returnValue = -1; 
 		std::cout <<"Error while creating a client socket"
-	<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]\n"; 
+			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]" << std::endl; 
 	}
 	else
 	{
-		std::cout << "A client socket created\n";
-
+		std::cout << "A client socket created" << std::endl;
 	}
+
 	return returnValue;
 }
 
 int IOTClient::connectClientToServer()
 {
 	int returnValue = 0;
-	std::cout << "Connecting to a server ...\n";
+	std::cout << "Connecting to a server ..." << std::endl;
 
 	bzero((char *) &serverAddress(), sizeof(serverAddress()));
 
@@ -60,14 +61,13 @@ int IOTClient::connectClientToServer()
     if (connect(socketConnectToClient_,(struct sockaddr *) &serverAddress(), 
 	sizeof(serverAddress())) < 0)
     {
-		returnValue = -200001; 
+		returnValue = -1; 
     	std::cout<<"Error while connecting to a server"
-			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]\n";  
-
+			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]" << std::endl;  
     }
 	else
 	{
-		std::cout << "A client connected to a server\n";
+		std::cout << "A client connected to a server" << std::endl;
 	}
 	return returnValue;
 }
@@ -75,62 +75,65 @@ int IOTClient::connectClientToServer()
 int IOTClient::sendRequestToServer(std::string& data)
 {
 	int returnValue = 0;
-	std::cout << "A Client sending a request ...\n";
-	//std::string aux = clock.currentDateTime();
-	//std::string data = std::get<1>(getCurrentTime());
+	std::cout << "A Client sending a request ..." << std::endl;
 
 	numberOfByteOfBuffer() = write(socketConnectToClient_,data.c_str(),data.length());
+	
 	if (numberOfByteOfBuffer() < 0 )
 	{
-		returnValue = -200002; 		
+		returnValue = -1; 		
 		std::cout<<"Error of sending a request to a server"
-			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]\n";  
+			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]" << std::endl;  
 	}
 	else
 	{
-		std::cout << "Request sent to a server\n";
-
+		std::cout << "Request sent to a server" << std::endl;
 	}
-	return returnValue;
 
+	return returnValue;
 }
 
 int IOTClient::receiveResponseFromServer()
 {
 	int returnValue = 0;
-	std::cout << "A Client receiving a response ...\n";
+	std::cout << "A Client receiving a response ..." << std::endl;
 
-    bzero(buffer,1024);
-     numberOfByteOfBuffer() = read(socketConnectToClient_,buffer,1023);
-    if (numberOfByteOfBuffer() < 0)
-     {
-		returnValue = -200003; 	
+  	memset(buffer, 0, sizeof(buffer));
+
+	numberOfByteOfBuffer() = read(socketConnectToClient_,buffer,sizeof(buffer));
+    
+	if (numberOfByteOfBuffer() < 0)
+    {
+		returnValue = -1; 	
      	std::cout<<"Fail to receive response from a server"
-			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]\n";  
+			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]" << std::endl;  
 
-     }
-	 {
-		 std::cout << "Response from a server\n";
-		 std::cout << buffer << "\n";
-	 }
+    }
+	else
+	{
+		 std::cout << "Response from a server:" << std::endl;
+		 std::cout << buffer << "" << std::endl;
+	}
+	
 	return returnValue;
 }
 
 int IOTClient::closeConnection()
 {
 	int returnValue = 0;
-	std::cout << "A Client closing a connection ...\n";
+	
+	std::cout << "A Client closing a connection ..." << std::endl;
+	
 	if(close(socketConnectToClient_) < 0)
 	{
-		returnValue = -200004; 
+		returnValue = -1; 
      	std::cout<<"Fail to close a connection with a server"
-			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]\n";  
-
+			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]" << std::endl;  
 	}
 	else
 	{
-     	std::cout<<"Connection with a server closed\n";
-
+     	std::cout<<"Connection with a server closed" << std::endl;
 	}
+
 	return returnValue;
 }

@@ -13,6 +13,7 @@
 #include <algorithm>
 #include <iterator>
 #include <thread>
+#include <chrono>
 
 using namespace std;
 
@@ -20,12 +21,11 @@ void processQueueThread(IOTServer& svrHandle)
 {
 	std::cout << __FUNCTION__ << "initialized!" << std::endl;
 
-	while(1)
+	while(true)
 	{
     	svrHandle.processQueue();
 
-		// waits 1 second
-		usleep(100000);
+		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
@@ -66,11 +66,9 @@ int main(int argc, char const *argv[])
 	while (true)
 	{
         if(myServer.acceptToMakeConnectionWithClient() < 0) return -1;
-
 	    ServerThread *myThread = new ServerThread(new ProcessClient(), myServer);
         myThread -> createServerThread();
-        std::cout << "Running server" << std::endl; 
-	}
+ 	}
 
 	thread1.join();
 

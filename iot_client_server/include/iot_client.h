@@ -10,7 +10,6 @@
 #include <netinet/in.h>
 #include <netdb.h> 
 #include <time.h>
-
 #include <iostream>
 #include <ctime>
 #include <string>
@@ -19,7 +18,6 @@
 class IOTClient
 {
 public:
-
 	IOTClient(char *_serverIP_, unsigned short _serverPort_);
 	int createClientForConnection();
 	int connectClientToServer();
@@ -54,7 +52,7 @@ private:
 	int numberOfByteOfBuffer_;
 	struct sockaddr_in serverAddress_;
 	struct hostent *serverIP_;
-	char buffer[2048];
+	char buffer[1024];
 };
 
 #endif /* _IOT_CLIENT_H_ */
