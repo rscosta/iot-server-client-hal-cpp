@@ -169,20 +169,26 @@ std::tuple<int, std::string> IOTServer::readIncomingMessageFromClient()
 					//Client type
 					_pubRegister.clientType = PUBLISHER_TYPE;
 
-					//Add to vector
-					pthread_mutex_lock(&pubSubQueueMutex);
-					pubSubList.push_back(_pubRegister);
-					pthread_mutex_unlock(&pubSubQueueMutex);
+					if(pubSubList.size() >= maxConnection)
+					{
+						std::cout << "[SERVER][PUBREG] - Publisher ID [" << 
+							this->socketProcessAcceptedConnection << "] is not registered. Max. clients connections reached." << std::endl;
+						return  std::make_tuple(returnValue, "PUBREGFAILMAXREACHED");
+					}
+					else
+					{	
+						//Add to vector
+						pthread_mutex_lock(&pubSubQueueMutex);
+						pubSubList.push_back(_pubRegister);
+						pthread_mutex_unlock(&pubSubQueueMutex);
 
-					std::cout << "[SERVER][PUBREG] - Publisher ID [" << this->socketProcessAcceptedConnection << "] registered." << std::endl;
-
-					return  std::make_tuple(returnValue, "PUBREGOK");
+						std::cout << "[SERVER][PUBREG] - Publisher ID [" << this->socketProcessAcceptedConnection << "] registered succesfully." << std::endl;
+						return  std::make_tuple(returnValue, "PUBREGOK");
+					}
 				}
 				else
 				{
-					returnValue = -1;
 					return std::make_tuple(returnValue, "PUBREGPARAMERROR");
-
 				}
 			}
 			else if(cmd.compare("PUBREGTOP") == 0) //Register Topic to the list
@@ -208,7 +214,6 @@ std::tuple<int, std::string> IOTServer::readIncomingMessageFromClient()
 								// Check if topic is registered already
 				                if (stopic.compare(topicStr) == 0)
 								{
-									returnValue = -1;
 									pthread_mutex_unlock(&pubSubQueueMutex);
 									return  std::make_tuple(returnValue, "PUBREGTOPTOPREGALREADY");
 								}
@@ -223,16 +228,13 @@ std::tuple<int, std::string> IOTServer::readIncomingMessageFromClient()
 					}
 
 					// Client is not registered.
-					returnValue = -1;
 					pthread_mutex_unlock(&pubSubQueueMutex);
 				    return  std::make_tuple(returnValue, "PUBREGTOPCLIENTLISTEMPTY");
 				}
 				else
 				{
 					// Invalid parameters input	
-					returnValue = -1;
 					return std::make_tuple(returnValue, "PUBREGTOPPARAMERROR");
-
 				}
 			}
 			else if(cmd.compare("PUBLISTTOP") == 0) // Return list of topics of all Publishers
@@ -281,19 +283,17 @@ std::tuple<int, std::string> IOTServer::readIncomingMessageFromClient()
 					else
 					{
 						// There is no publisher with topics available.
-						returnValue = -1;
 						return  std::make_tuple(returnValue, "PUBLISTTOPCLIENTLISTEMPTY");
 					}
 				}
 				else
 				{
 					// Invalid parameters input	
-					returnValue = -1;
 					return std::make_tuple(returnValue, "PUBLISTTOPPARAMERROR");
 
 				}
 			}
-			else if(cmd.compare("PUBSENDDATA") == 0)
+			else if(cmd.compare("SENDPAYLOAD") == 0)
 			{
 				// Search for the second & third parameters (TOPIC, MESSAGE)
 				if(row.size() == 3)
@@ -307,11 +307,10 @@ std::tuple<int, std::string> IOTServer::readIncomingMessageFromClient()
 					pthread_mutex_lock(&pubSubQueueMutex);
 					for (int i = 0; i < pubSubList.size(); i++)
 					{
-						// Search for the client socket ID and publisher type in the list
-						if((pubSubList.at(i).sockID == this->socketProcessAcceptedConnection)&&
-							(pubSubList.at(i).clientType == PUBLISHER_TYPE))
+						// Search for the client socket ID in the list
+						if(pubSubList.at(i).sockID == this->socketProcessAcceptedConnection)
 						{
-							std::cout << "[SERVER][PUBSENDDATA] - data:" << strMsg << " will be injected into topic:" 
+							std::cout << "[SERVER][SENDPAYLOAD] - data:" << strMsg << " will be injected into topic:" 
 										<< topicMsg << ". But Searching at first for this topic into the Client's topic list." << std::endl;
 
 							// Search for topic
@@ -323,34 +322,31 @@ std::tuple<int, std::string> IOTServer::readIncomingMessageFromClient()
 								{
 									Message clientMsg(topicMsg, strMsg);
 
-									std::cout << "[SERVER][PUBSENDDATA] - data:" << strMsg << " will be injected into topic now into" 
+									std::cout << "[SERVER][SENDPAYLOAD] - data:" << strMsg << " will be injected into topic now into" 
 										<< topicMsg << "." << std::endl;
 
 									// Push message to message Queue 
 									receive(clientMsg);
 
-									std::cout << "[SERVER][PUBSENDDATA] - data:" << strMsg << " injected into topic:" 
+									std::cout << "[SERVER][SENDPAYLOAD] - data:" << strMsg << " injected into topic:" 
 												<< topicMsg << std::endl;
 
 									pthread_mutex_unlock(&pubSubQueueMutex);
-								    return  std::make_tuple(returnValue, "PUBSENDDATAOK");
+								    return  std::make_tuple(returnValue, "SENDPAYLOADOK");
 								}
 							}
 
-							returnValue = -1;
 							pthread_mutex_unlock(&pubSubQueueMutex);
-							return  std::make_tuple(returnValue, "PUBSENDDATATOPNOTFOUND");
+							return  std::make_tuple(returnValue, "SENDPAYLOADTOPNOTFOUND");
 						}
 					}
 
-					returnValue = -1;
 					pthread_mutex_unlock(&pubSubQueueMutex);
-				    return  std::make_tuple(returnValue, "PUBSENDDATACLIENTLISTEMPTY");
+				    return  std::make_tuple(returnValue, "SENDPAYLOADCLIENTLISTEMPTY");
 				}
 				else
 				{
-					returnValue = -1;
-					return std::make_tuple(returnValue, "PUBREGTOPPARAMERROR");
+					return std::make_tuple(returnValue, "SENDPAYLOADPARAMERROR");
 				}
 			}
 			else if(cmd.compare("SUBREG") == 0) //Register Subscriber
@@ -367,19 +363,26 @@ std::tuple<int, std::string> IOTServer::readIncomingMessageFromClient()
 					//Client type
 					_subRegister.clientType = SUBSCRIBER_TYPE;
 
-					// Pushes subscriber to the list
-					pthread_mutex_lock(&pubSubQueueMutex);
-					pubSubList.push_back(_subRegister);
-					pthread_mutex_unlock(&pubSubQueueMutex);
+					if(pubSubList.size() >= maxConnection)
+					{
+						std::cout << "[SERVER][SUBREG] - Subscriber ID [" << 
+							this->socketProcessAcceptedConnection << "] is not registered. Max. clients connections reached." << std::endl;
+						return  std::make_tuple(returnValue, "SUBREGFAILMAXREACHED");
+					}
+					else
+					{	
+						//Add to vector
+						pthread_mutex_lock(&pubSubQueueMutex);
+						pubSubList.push_back(_subRegister);
+						pthread_mutex_unlock(&pubSubQueueMutex);
 
-					std::cout << "[SERVER][SUBREG] - Subscriber ID[" << this->socketProcessAcceptedConnection << "] registered." << std::endl;
-
-					return  std::make_tuple(returnValue, "SUBREGOK");
+						std::cout << "[SERVER][SUBREG] - Subscriber ID [" << this->socketProcessAcceptedConnection << "] registered succesfully." << std::endl;
+						return  std::make_tuple(returnValue, "SUBREGOK");
+					}
 				}
 				else
 				{
-					returnValue = -1;
-					return std::make_tuple(returnValue, "PUBREGPARAMERROR");
+					return std::make_tuple(returnValue, "SUBREGPARAMERROR");
 				}
 			}
 			else if(cmd.compare("SUBLISTENTOP") == 0) //Register Subscriber Topic filter
@@ -405,7 +408,6 @@ std::tuple<int, std::string> IOTServer::readIncomingMessageFromClient()
 								// Check if topic is registered already
 				                if (stopic.compare(topicStr) == 0)
 								{
-									returnValue = -1;
 									pthread_mutex_unlock(&pubSubQueueMutex);
 									return  std::make_tuple(returnValue, "SUBLISTENTOPREGALREADY");
 								}
@@ -419,22 +421,15 @@ std::tuple<int, std::string> IOTServer::readIncomingMessageFromClient()
 
 							return std::make_tuple(returnValue, "SUBLISTENTOPOK");
 						}
-						else
-						{
-							// Client not found in the list
-							returnValue = -1;
-							return std::make_tuple(returnValue, "SUBLISTENTOPSUBNOTFOUND");
-						}
 					}
 
 					// Client is not registered.
-					returnValue = -1;
+					pthread_mutex_unlock(&pubSubQueueMutex);
 				    return  std::make_tuple(returnValue, "SUBLISTENTOPCLIENTLISTEMPTY");
 				}
 				else
 				{
 					// Invalid parameters input	
-					returnValue = -1;
 					return std::make_tuple(returnValue, "PUBREGTOPPARAMERROR");
 				}
 			}
@@ -472,30 +467,23 @@ std::tuple<int, std::string> IOTServer::readIncomingMessageFromClient()
 								}
 							}
 							
-							returnValue = -1;
+							pthread_mutex_unlock(&pubSubQueueMutex);
 							return  std::make_tuple(returnValue, "SUBUNREGTOPTOPNOTFOUND");
-						}
-						else
-						{
-							// Client not found in the list
-							returnValue = -1;
-							return std::make_tuple(returnValue, "SUBUNREGTOPSUBNOTFOUND");
 						}
 					}
 
 					// Client is not registered.
-					returnValue = -1;
+					pthread_mutex_unlock(&pubSubQueueMutex);
 				    return  std::make_tuple(returnValue, "SUBUNREGTOPCLIENTLISTEMPTY");
 				}
 				else
 				{
 					// Invalid parameters input	
-					returnValue = -1;
 					return std::make_tuple(returnValue, "SUBUNREGTOPPARAMERROR");
 				}
 			}
-
-	    	return std::make_tuple(-2, "INVALIDCMD");
+			
+	    	return std::make_tuple(returnValue, "INVALIDCMD");
 		}		
 	}
 
@@ -646,7 +634,7 @@ int IOTServer::showServerIP()
 	int returnValue = 0;
 	if( getLocalAddress(this->serverIPv4) < 0)
 	{
-       	returnValue = -100011; 
+       	returnValue = -1; 
         std::cout << "Fail to get server address from getLocalAddress"
 			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]" << std::endl; 
 	}
@@ -672,7 +660,7 @@ int IOTServer::closeAcceptedConnection()
 	
 	if(close(socketProcessAcceptedConnection) < 0)
 	{
-       	returnValue = -100012; 
+       	returnValue = -1; 
      	std::cout<<"Fail to close a connection with a server"
 			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]" << std::endl; 
 
@@ -699,7 +687,7 @@ int IOTServer::closeListenningSocket()
 
 	if(close(socketListenToConnection) < 0)
 	{
-		returnValue = -100013; 
+		returnValue = -1; 
      	std::cout<<"Fail to close a listenning socket"
 			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]" << std::endl;  
 	
