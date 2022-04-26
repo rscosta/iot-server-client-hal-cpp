@@ -5,3 +5,5 @@ project(Client-Server-HAL)
 add_subdirectory (hal)
 add_subdirectory(custom_json)
 add_subdirectory(iot_client_server)
+add_subdirectory(docs)
+
