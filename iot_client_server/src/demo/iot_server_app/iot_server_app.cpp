@@ -1,4 +1,3 @@
-
 #include "iot_server.h"
 #include "server_thread.h"
 #include "process_client.h"
@@ -25,7 +24,7 @@ void processQueueThread(IOTServer& svrHandle)
 	{
     	svrHandle.processQueue();
 
-		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 }
 
