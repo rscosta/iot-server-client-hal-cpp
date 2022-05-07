@@ -9,6 +9,7 @@
 #include <chrono>
 #include <thread>
 #include <sstream>
+#include <tuple>
 #include "iot_client.h"
 #include "hal_accel_gyro_sensor.h"
 
@@ -66,6 +67,10 @@ int main(int argc, char *argv[])
 	if(!drvRes) return -1;
 
 	// ===========================================================
+	// Checks for response
+	std::string srvStrRes;
+	int srvFuncRes = 0;
+	
 	// STEP 1: Request registering to the IOT Server
 	std::string pubRegCmd("PUBREG");
 
@@ -73,7 +78,12 @@ int main(int argc, char *argv[])
 	if(iotClientApp.sendRequestToServer(pubRegCmd) < 0) return -1;
 		
 	// Checks for response
-	if(iotClientApp.receiveResponseFromServer() < 0) return -1;
+	std::tie(srvFuncRes, srvStrRes) = iotClientApp.receiveResponseFromServer();
+
+	if(srvFuncRes != -1)
+	{
+		std::cout << "PUBREG Response: " << srvStrRes << std::endl; 
+	}
 
 	// ===========================================================
 	// STEP 2: Request the publisher topic registering to the IOT Server
@@ -86,7 +96,12 @@ int main(int argc, char *argv[])
 	if(iotClientApp.sendRequestToServer(pubRegTopicCmd) < 0) return -1;
 
 	// Checks for response
-	if(iotClientApp.receiveResponseFromServer() < 0) return -1;
+	std::tie(srvFuncRes, srvStrRes) = iotClientApp.receiveResponseFromServer();
+
+	if(srvFuncRes != -1)
+	{
+		std::cout << "PUBREGTOP Response: " << srvStrRes << std::endl; 
+	}
 
 	// ===========================================================
 	// STEP 3: Request list of topics registered for this publisher to the IOT Server
@@ -96,7 +111,12 @@ int main(int argc, char *argv[])
 	if(iotClientApp.sendRequestToServer(pubListTopicCmd) < 0) return -1;
 		
 	// Checks for response
-	if(iotClientApp.receiveResponseFromServer() < 0) return -1;
+	std::tie(srvFuncRes, srvStrRes) = iotClientApp.receiveResponseFromServer();
+
+	if(srvFuncRes != -1)
+	{
+		std::cout << "PUBLISTTOP Response: " << srvStrRes << std::endl; 
+	}
 
 	// ===========================================================
 	// STEP 4: Sends message (topic + sensor value(s)) to the IOT Server each x seconds.
@@ -119,7 +139,7 @@ int main(int argc, char *argv[])
 		
 		// Serialize Message to be sent to IOT Server
 		std::ostringstream pubSendDataCmd;
-		pubSendDataCmd << "PUBSENDDATA,"; // Contol packet
+		pubSendDataCmd << "SENDPAYLOAD,"; // Contol packet
 		pubSendDataCmd << "sensor/accelgyro,"; // Topic ID
 
 		
@@ -139,7 +159,12 @@ int main(int argc, char *argv[])
 		if(iotClientApp.sendRequestToServer(accelGyroSensorRes) < 0) return -1;
 		
 		// Checks for response
-		if(iotClientApp.receiveResponseFromServer() < 0) return -1;
+		std::tie(srvFuncRes, srvStrRes) = iotClientApp.receiveResponseFromServer();
+
+		if(srvFuncRes != -1)
+		{
+			std::cout << "SENDPAYLOAD Response: " << srvStrRes << std::endl; 
+		}
 
 		// waits 1 second after next publishing
 		std::this_thread::sleep_for(std::chrono::milliseconds(1000));

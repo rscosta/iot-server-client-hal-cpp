@@ -762,7 +762,8 @@ int IOTServer::sendMessagesToClientFromQueue()
 					pubSubList.at(i).msgQueuePubSub.pop();
 
 					std::cout << "Message dispatched >>>>>>>:" << msg.getMessage() << std::endl;
-					//sendResponseToClient(msg.getMessage(), 200);
+					
+					sendResponseToClient(msg.getMessage(), 200);
 				}
 			}
 		}

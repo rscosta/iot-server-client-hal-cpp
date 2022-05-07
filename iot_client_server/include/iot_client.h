@@ -22,7 +22,7 @@ public:
 	int createClientForConnection();
 	int connectClientToServer();
 	int sendRequestToServer(std::string& data);
-	int receiveResponseFromServer();
+	std::tuple<int, std::string> receiveResponseFromServer();
 	int closeConnection();
 	std::tuple <std::string, std::string> getCurrentTime();
 

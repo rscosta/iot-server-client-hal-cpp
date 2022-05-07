@@ -93,7 +93,7 @@ int IOTClient::sendRequestToServer(std::string& data)
 	return returnValue;
 }
 
-int IOTClient::receiveResponseFromServer()
+std::tuple<int, std::string> IOTClient::receiveResponseFromServer()
 {
 	int returnValue = 0;
 	std::cout << "A Client receiving a response ..." << std::endl;
@@ -106,16 +106,18 @@ int IOTClient::receiveResponseFromServer()
     {
 		returnValue = -1; 	
      	std::cout<<"Fail to receive response from a server"
-			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]" << std::endl;  
+			<<"[ERROR]["<<strerror(errno)<<"]["<<returnValue<<"]" << std::endl;
 
+		return  std::make_tuple(returnValue, "");  
     }
 	else
 	{
 		 std::cout << "Response from a server:" << std::endl;
 		 std::cout << buffer << "" << std::endl;
+
+		return std::make_tuple(returnValue, buffer);  
+
 	}
-	
-	return returnValue;
 }
 
 int IOTClient::closeConnection()

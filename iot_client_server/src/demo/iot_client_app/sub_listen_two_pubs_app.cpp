@@ -9,6 +9,7 @@
 #include <chrono>
 #include <thread>
 #include <sstream>
+#include <tuple>
 #include "iot_client.h"
 
 static volatile int keepRunning = 1;
@@ -46,13 +47,21 @@ int main(int argc, char *argv[])
 
 	// ===========================================================
 	// STEP 1: Request registering to the IOT Server
+	std::string srvStrRes;
+	int srvFuncRes = 0;
+	
 	std::string subRegCmd("SUBREG");
 
 	// Sends to IOT Server
 	if(iotClientApp.sendRequestToServer(subRegCmd) < 0) return -1;
 		
 	// Checks for response
-	if(iotClientApp.receiveResponseFromServer() < 0) return -1;
+	std::tie(srvFuncRes, srvStrRes) = iotClientApp.receiveResponseFromServer();
+
+	if(srvFuncRes != -1)
+	{
+		std::cout << "SUBREG Response: " << srvStrRes << std::endl; 
+	}
 
 	// ===========================================================
 	// STEP 2: Request the publisher topic listening to the IOT Server
@@ -65,7 +74,12 @@ int main(int argc, char *argv[])
 	if(iotClientApp.sendRequestToServer(subListenCmd) < 0) return -1;
 
 	// Checks for response
-	if(iotClientApp.receiveResponseFromServer() < 0) return -1;
+	std::tie(srvFuncRes, srvStrRes) = iotClientApp.receiveResponseFromServer();
+
+	if(srvFuncRes != -1)
+	{
+		std::cout << "SUBLISTENTOP Response: " << srvStrRes << std::endl; 
+	}
 
 	// ===========================================================
 	// STEP 3: Request the publisher topic listening to the IOT Server
@@ -78,7 +92,12 @@ int main(int argc, char *argv[])
 	if(iotClientApp.sendRequestToServer(subListenCmd2) < 0) return -1;
 
 	// Checks for response
-	if(iotClientApp.receiveResponseFromServer() < 0) return -1;
+	std::tie(srvFuncRes, srvStrRes) = iotClientApp.receiveResponseFromServer();
+
+	if(srvFuncRes != -1)
+	{
+		std::cout << "SUBLISTENTOP Response: " << srvStrRes << std::endl; 
+	}
 
 	// ===========================================================
 	// STEP 3: Receives payload messages from the IOT Server.
@@ -86,8 +105,13 @@ int main(int argc, char *argv[])
 	{
 		std::cout << "===========================================" << std::endl;
 
-		// Checks for response
-		if(iotClientApp.receiveResponseFromServer() < 0) return -1;
+		// Checks for server notification
+		std::tie(srvFuncRes, srvStrRes) = iotClientApp.receiveResponseFromServer();
+
+		if(srvFuncRes != -1)
+		{
+			std::cout << "Server Notification: " << srvStrRes << std::endl; 
+		}
 
 		// waits 0.1 second after next message receiving
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
