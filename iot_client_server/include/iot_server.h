@@ -23,7 +23,6 @@
 #include <sstream>
 
 #include "message.h"
-#include "custom_json.h"
 #include "utils.h"
 
 /**

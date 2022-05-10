@@ -11,15 +11,9 @@ set_target_properties(IOTServer PROPERTIES
 
 target_include_directories(IOTServer PRIVATE ${CMAKE_SOURCE_DIR}/iot_client_server/include)
 
-target_include_directories(IOTServer PRIVATE ${CMAKE_SOURCE_DIR}/custom_json/include)
-
-link_directories(${CMAKE_BINARY_DIR}/custom_json/src/lib)
-
 link_directories(${CMAKE_BINARY_DIR}/hal/src/lib/temp_sensor)
 
 target_link_libraries(IOTServer pthread)
-
-target_link_libraries(IOTServer CustomJson)
 
 install(TARGETS IOTServer
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
