@@ -105,22 +105,7 @@ int main(int argc, char *argv[])
 	}
 
 	// ===========================================================
-	// STEP 3: Request list of topics registered for this publisher to the IOT Server
-	std::string pubListTopicCmd("PUBLISTTOP");
-
-	// Sends to IOT Server
-	if(iotClientApp.sendRequestToServer(pubListTopicCmd) < 0) return -1;
-		
-	// Checks for response
-	std::tie(srvFuncRes, srvStrRes) = iotClientApp.receiveResponseFromServer();
-
-	if(srvFuncRes != -1)
-	{
-		std::cout << "PUBLISTTOP Response: " << srvStrRes << std::endl; 
-	}
-
-	// ===========================================================
-	// STEP 4: Sends message (topic + sensor value(s)) to the IOT Server each x seconds.
+	// STEP 3: Sends message (topic + sensor value(s)) to the IOT Server each x seconds.
 	while(keepRunning)
 	{
 		std::cout << "===========================================" << std::endl;

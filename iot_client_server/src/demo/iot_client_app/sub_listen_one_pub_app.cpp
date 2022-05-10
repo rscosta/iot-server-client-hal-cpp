@@ -64,7 +64,22 @@ int main(int argc, char *argv[])
 	}
 
 	// ===========================================================
-	// STEP 2: Request the publisher topic listening to the IOT Server
+	// STEP 2: Request list of topics registered for this publisher to the IOT Server
+	std::string pubListTopicCmd("PUBLISTTOP");
+
+	// Sends to IOT Server
+	if(iotClientApp.sendRequestToServer(pubListTopicCmd) < 0) return -1;
+		
+	// Checks for response
+	std::tie(srvFuncRes, srvStrRes) = iotClientApp.receiveResponseFromServer();
+
+	if(srvFuncRes != -1)
+	{
+		std::cout << "PUBLISTTOP Response: " << srvStrRes << std::endl; 
+	}
+
+	// ===========================================================
+	// STEP 3: Request the publisher topic listening to the IOT Server
 	std::string subListenCmd;
 	
 	subListenCmd.append("SUBLISTENTOP,"); // Control Packet
@@ -82,7 +97,7 @@ int main(int argc, char *argv[])
 	}
 
 	// ===========================================================
-	// STEP 3: Receives payload messages from the IOT Server.
+	// STEP 4: Receives payload messages from the IOT Server.
 	while(keepRunning)
 	{
 		std::cout << "===========================================" << std::endl;
