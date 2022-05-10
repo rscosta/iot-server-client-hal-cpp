@@ -13,7 +13,7 @@ void *ServerThread::functionThread2(void *arg)
 {
 	IOTServer * iotSrv = (IOTServer *) arg;
 
-	if(!iotSrv->sendMessagesToClientFromQueue())
+	while(!iotSrv->sendMessagesToClientFromQueue())
 	{
 		std::this_thread::sleep_for(std::chrono::milliseconds(100));
 	}
